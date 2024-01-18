@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: black;
+            color: white;
+        }
+
+        .card {
+            background-color: #2c2c2c;
+            border-color: #444;
+        }
+
+        .card-header {
+            background-color: #333;
+            font-weight: bold;
+            border-bottom-color: #444;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+
+        .table-bordered th,
+        .table-bordered td {
+            color: white;
+        }
+
+        .list-group-item {
+            background-color: #2c2c2c;
+            border-color: #444;
+        }
+    </style>
+
+    <title>Analyze buoy data</title>
+</head>
+
+<body>
+    <div class="container py-5">
+        <div class="row">
+            <div class="col-md-8 mx-auto">
+                <div class="card shadow">
+                    <div class="card-header">Upload CSV</div>
+                    <div class="card-body">
+                        <form action="/" method="POST" enctype="multipart/form-data">
+                            {{ form.csrf_token }}
+                            <div class="form-group">
+                                <label for="file">Choose a CSV file:</label>
+                                <input type="file" class="form-control-file" name="file" id="file" accept=".csv">
+                            </div>
+                            <div class="form-group mt-4">
+                                <input class="btn btn-success" id="submit" name="submit" type="submit" value="Load parameter">
+                            </div>
+                            <input type="hidden" name="filepath" value="{{ filepath }}">
+                            <div class="form-group">
+                                <label for="parameter">Choose a parameter to analyze:</label>
+                                <select name="parameter" id="parameter" class="form-control mb-3">
+                                    {% for header in headers %}
+                                    <option value="{{ header }}" {% if header == parameter %}selected{% endif %}>{{ header }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-group mt-4">
+                                <input class="btn btn-primary" id="submit" name="submit" type="submit" value="Analyze data">
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                {% if summary %}
+                <div class="card mt-4 shadow">
+                    <div class="card-header">Summary</div>
+                    <div class="card-body">
+                        <ul class="list-group">
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Total Rows
+                                <span class="badge badge-primary badge-pill">{{ summary["Total"] }}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Flagged Rows
+                                <span class="badge badge-danger badge-pill">{{ summary["Flagged"] }}</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <a href="/download-report" class="btn btn-primary mt-3">Download Report</a>
+                {% endif %}
+
+                {% if flags %}
+                <div class="card mt-4 shadow">
+                    <div class="card-header">Flagged Rows</div>
+                    <div class="card-body">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Serial Number</th>
+                                    <th>Row Number</th>
+                                    <th>Flagged Value</th>
+                                    <th>Reason</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for row in flags %}
+                                <tr>
+                                    <td>{{ loop.index }}</td>
+                                    <td>{{ row[0] }}</td>
+                                    <td>{{ row[1] }}</td>
+                                    <td>{{ row[2] }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {% endif %}
+
+
+                {% if plot_image_metrics %}
+                <div class="card mt-4 shadow">
+                    <div class="card-header">Metrics Plots</div>
+                    <div class="card-body">
+                        <img src="{{ plot_image_metrics}}" alt="Metrics Plots" class="img-fluid">
+
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+
+</html>
